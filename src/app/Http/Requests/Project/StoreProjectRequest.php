@@ -34,21 +34,10 @@ class StoreProjectRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->has('recurring')) {
+        if ($user = $this->user()) {
             $this->merge([
-                'recurring' => filter_var($this->input('recurring'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
+                'created_by' => $user->id,
             ]);
         }
-    }
-
-    public function validated($key = null, $default = null): array
-    {
-        $validated = parent::validated($key, $default);
-
-        if (array_key_exists('recurring', $validated)) {
-            $validated['recurring'] = (bool) $validated['recurring'];
-        }
-
-        return $validated;
     }
 }
