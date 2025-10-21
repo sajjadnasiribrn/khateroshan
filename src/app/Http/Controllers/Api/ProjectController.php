@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Project\ProjectFilterRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Contracts\Database\Eloquent\Builder;
@@ -84,11 +85,50 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request)
     {
         try {
-            $project = Project::create($request->validated());
+            $data = $request->validated();
+            $data['created_by'] = $request->user()?->id;
+
+            $project = Project::create($data);
 
             $project->load(['creator']);
 
             return new ProjectResource($project, Response::HTTP_CREATED);
+        } catch (Throwable $throwable) {
+            report($throwable);
+
+            return response()->json([
+                'message' => 'unexpected error occurred.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function update(Project $project, UpdateProjectRequest $request)
+    {
+        try {
+            $data = $request->validated();
+            unset($data['created_by']);
+
+            $project->fill($data);
+            $project->save();
+
+            $project->load(['creator']);
+
+            return new ProjectResource($project, Response::HTTP_OK);
+        } catch (Throwable $throwable) {
+            report($throwable);
+
+            return response()->json([
+                'message' => 'unexpected error occurred.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function destroy(Project $project)
+    {
+        try {
+            $project->delete();
+
+            return response()->noContent();
         } catch (Throwable $throwable) {
             report($throwable);
 

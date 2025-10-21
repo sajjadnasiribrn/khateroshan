@@ -5,9 +5,11 @@ namespace Tests\Feature;
 use App\Enums\ProjectPriorityEnum;
 use App\Enums\ProjectStatusEnum;
 use App\Enums\ProjectTypeEnum;
+use App\Enums\UserRoleEnum;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class ProjectApiTest extends TestCase
@@ -17,6 +19,8 @@ class ProjectApiTest extends TestCase
     public function test_it_lists_projects_with_filters_and_search(): void
     {
         $user = User::factory()->create();
+
+        Passport::actingAs($user);
 
         $matching = Project::factory()
             ->for($user, 'creator')
@@ -53,7 +57,11 @@ class ProjectApiTest extends TestCase
 
     public function test_it_creates_project(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create([
+            'role' => UserRoleEnum::MANAGER,
+        ]);
+
+        Passport::actingAs($user);
 
         $payload = [
             'title' => 'New Integration',
@@ -64,7 +72,6 @@ class ProjectApiTest extends TestCase
             'start_date' => now()->toDateString(),
             'end_date' => now()->addMonth()->toDateString(),
             'recurring' => true,
-            'created_by' => $user->id,
             'budget' => 12500.50,
             'attachments' => [
                 ['name' => 'Requirements.pdf', 'url' => 'https://example.com/requirements.pdf'],
@@ -90,10 +97,14 @@ class ProjectApiTest extends TestCase
 
     public function test_it_validates_project_creation(): void
     {
+        Passport::actingAs(User::factory()->create([
+            'role' => UserRoleEnum::MANAGER,
+        ]));
+
         $response = $this->postJson('/api/projects', []);
 
         $response
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['title', 'created_by']);
+            ->assertJsonValidationErrors(['title']);
     }
 }
