@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Enums\ProjectPriority;
-use App\Enums\ProjectStatus;
-use App\Enums\ProjectType;
+use App\Enums\ProjectPriorityEnum;
+use App\Enums\ProjectStatusEnum;
+use App\Enums\ProjectTypeEnum;
 use App\Enums\TaskStatusEnum;
 use App\Enums\UserRoleEnum;
 use App\Models\Comment;
@@ -46,7 +46,7 @@ class DatabaseSeeder extends Seeder
             ]),
         ]);
 
-        $projectStatuses = ProjectStatus::cases();
+        $projectStatuses = ProjectStatusEnum::cases();
         $projectRoles = ['owner', 'collaborator', 'reviewer'];
         $taskStatuses = TaskStatusEnum::cases();
 
@@ -55,8 +55,8 @@ class DatabaseSeeder extends Seeder
             ->state(fn () => [
                 'created_by' => $users->random()->id,
                 'status' => Arr::random($projectStatuses),
-                'priority' => Arr::random(ProjectPriority::cases()),
-                'type' => Arr::random(ProjectType::cases()),
+                'priority' => Arr::random(ProjectPriorityEnum::cases()),
+                'type' => Arr::random(ProjectTypeEnum::cases()),
             ])
             ->create();
 

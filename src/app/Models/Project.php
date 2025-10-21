@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use App\Enums\ProjectPriority;
-use App\Enums\ProjectStatus;
-use App\Enums\ProjectType;
+use App\Enums\ProjectPriorityEnum;
+use App\Enums\ProjectStatusEnum;
+use App\Enums\ProjectTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,9 +43,9 @@ class Project extends Model
             'recurring' => 'boolean',
             'budget' => 'decimal:2',
             'attachments' => 'array',
-            'status' => ProjectStatus::class,
-            'priority' => ProjectPriority::class,
-            'type' => ProjectType::class,
+            'status' => ProjectStatusEnum::class,
+            'priority' => ProjectPriorityEnum::class,
+            'type' => ProjectTypeEnum::class,
         ];
     }
 
