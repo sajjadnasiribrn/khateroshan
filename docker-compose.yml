@@ -1,0 +1,182 @@
+networks:
+  khateroshan:
+    driver: bridge
+
+
+services:
+  app:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/default.conf
+    env_file:
+      - .env
+    environment:
+      - NGINX_SERVER_NAME=${NGINX_SERVER_NAME}
+      - NGINX_ROOT=${NGINX_ROOT}
+      - CORS_ALLOW_ORIGIN=${CORS_ALLOW_ORIGIN}
+    depends_on:
+      - php
+      - redis
+      - mysql
+    networks:
+      - khateroshan
+
+
+  mysql:
+    image: mariadb:10.6
+    restart: always
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: khateroshan
+      MYSQL_USER: khateroshan
+      MYSQL_PASSWORD: 12346789
+      MYSQL_ROOT_PASSWORD: 12346789
+      #      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./db/mysql:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+    networks:
+      - khateroshan
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - "9000"
+    environment:
+      CONTAINER_ROLE: app
+      APP_ENV: local
+    volumes:
+      - ./src:/var/www/html:delegated
+    depends_on:
+      - redis
+      - mysql
+    networks:
+      - khateroshan
+        
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www/html:delegated
+    environment:
+      APP_ENV: local
+      CONTAINER_ROLE: queue
+    command: /usr/local/bin/start
+    restart: always
+#    env_file:
+#      - ./.env
+    depends_on:
+      - php
+      - redis
+      - mysql
+    networks:
+      - khateroshan
+
+  redis:
+    image: redis:alpine
+    restart: always
+    expose:
+      - "6379"
+    command: redis-server --appendonly yes --replica-read-only no --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    networks:
+      - khateroshan
+
+  composer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - php
+    entrypoint: [ 'composer', '--ignore-platform-reqs' ]
+    networks:
+      - khateroshan
+
+  npm:
+    image: node:current-alpine
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+      - "5173:5173"
+    working_dir: /var/www/html
+    entrypoint: [ 'npm' ]
+    networks:
+      - khateroshan
+
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./src:/var/www/html:delegated
+    depends_on:
+      - php
+      - mysql
+    entrypoint: [ 'php', '/var/www/html/artisan' ]
+    networks:
+      - khateroshan
+
+#  phpmyadmin:
+#    image: 'phpmyadmin:latest'
+#    ports:
+#      - '8085:80'
+#    environment:
+#      PMA_HOST: mysql
+#      PMA_PORT: 3306
+#      PMA_USER: khateroshan
+#      PMA_PASSWORD: 12346789
+#      MYSQL_ROOT_PASSWORD: 12346789
+#    restart: unless-stopped
+#    networks:
+#      - khateroshan
+
+  mailpit:
+    image: axllent/mailpit
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - khateroshan
+
+#  minio:
+#    image: minio/minio:latest
+#    command: server /data --console-address ":9001"
+#    volumes:
+#      - ./data/minio/dev:/data
+#    environment:
+#      MINIO_ROOT_USER: khateroshan
+#      MINIO_ROOT_PASSWORD: 123456789
+#    ports:
+#      - "9002:9000"
+#      - "9001:9001"
+#    restart: unless-stopped
+#    networks:
+#      - khateroshan
+volumes:
+  redis-data:
+
