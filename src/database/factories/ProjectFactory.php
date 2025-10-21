@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Enums\ProjectPriority;
-use App\Enums\ProjectStatus;
-use App\Enums\ProjectType;
+use App\Enums\ProjectPriorityEnum;
+use App\Enums\ProjectStatusEnum;
+use App\Enums\ProjectTypeEnum;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -28,9 +28,9 @@ class ProjectFactory extends Factory
             'description' => fake()->paragraph(3),
             'start_date' => $startDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
-            'status' => fake()->randomElement(ProjectStatus::cases()),
-            'priority' => fake()->randomElement(ProjectPriority::cases()),
-            'type' => fake()->randomElement(ProjectType::cases()),
+            'status' => fake()->randomElement(ProjectStatusEnum::cases()),
+            'priority' => fake()->randomElement(ProjectPriorityEnum::cases()),
+            'type' => fake()->randomElement(ProjectTypeEnum::cases()),
             'recurring' => fake()->boolean(15),
             'created_by' => User::factory(),
             'budget' => fake()->optional()->randomFloat(2, 5000, 150000),

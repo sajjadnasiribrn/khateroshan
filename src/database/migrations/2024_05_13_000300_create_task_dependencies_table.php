@@ -18,7 +18,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['task_id', 'depends_on_task_id']);
-            $table->check('task_id <> depends_on_task_id');
         });
     }
 
@@ -30,4 +29,3 @@ return new class extends Migration
         Schema::dropIfExists('task_dependencies');
     }
 };
-
