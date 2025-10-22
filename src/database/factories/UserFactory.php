@@ -29,7 +29,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'role' => fake()->randomElement(UserRoleEnum::cases()),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => static::$password ??= Hash::make('Password123!'),
             'remember_token' => Str::random(10),
             'avatar' => fake()->optional()->imageUrl(200, 200, 'people'),
             'last_login' => fake()->optional()->dateTimeBetween('-1 month', 'now'),

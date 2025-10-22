@@ -12,6 +12,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
+    /**
+     * @group Authentication
+     *
+     * Sign in and receive an access token.
+     *
+     * @bodyParam email string required User email address. Example: admin@example.com
+     * @bodyParam password string required User password. Example: secret123
+     *
+     * @response 200 scenario="success" {"token":"<token>","token_type":"Bearer","user":{"id":1,"name":"Admin","email":"admin@example.com","role":"admin"}}
+     * @response 401 {"message":"Invalid credentials."}
+     */
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->validate([
@@ -36,6 +47,12 @@ class AuthController extends Controller
         ], Response::HTTP_OK);
     }
 
+    /**
+     * @group Authentication
+     * @authenticated
+     *
+     * Log out the currently authenticated user and revoke the access token.
+     */
     public function logout(Request $request)
     {
         $token = $request->user()?->token();
@@ -47,6 +64,14 @@ class AuthController extends Controller
         return response()->noContent();
     }
 
+    /**
+     * @group Authentication
+     * @authenticated
+     *
+     * Retrieve the profile of the currently authenticated user.
+     *
+     * @response 200 {"id":1,"name":"Admin","email":"admin@example.com","role":"admin"}
+     */
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();

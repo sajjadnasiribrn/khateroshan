@@ -11,6 +11,16 @@ use Throwable;
 
 class TaskCommentController extends Controller
 {
+    /**
+     * @group Task Comments
+     * @authenticated
+     *
+     * Add a comment to the given task.
+     *
+     * @urlParam task integer required The task id to comment on. Example: 55
+     * @bodyParam comment string required The comment body. Example: Please review the updated copy.
+     * @bodyParam rating integer Rating between 1 and 5. Example: 4
+     */
     public function store(Task $task, StoreTaskCommentRequest $request)
     {
         $user = $request->user();
