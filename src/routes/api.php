@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ProjectTaskController;
@@ -19,6 +20,12 @@ Route::prefix('auth')->group(function (): void {
 });
 
 Route::middleware('auth:api')->group(function (): void {
+    Route::prefix('analytics')->group(function (): void {
+        Route::get('projects/{project}', [AnalyticsController::class, 'project']);
+        Route::get('users/{user}', [AnalyticsController::class, 'user']);
+        Route::get('tasks/{task}/eta', [AnalyticsController::class, 'taskEta']);
+    });
+
     Route::get('/projects', [ProjectController::class, 'index']);
 
     Route::post('/projects', [ProjectController::class, 'store'])
