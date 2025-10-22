@@ -16,6 +16,23 @@ use Throwable;
 
 class ProjectController extends Controller
 {
+    /**
+     * @group Projects
+     * @authenticated
+     *
+     * List projects with optional filters and pagination.
+     *
+     * @queryParam q string Search term applied to title and description. Example: sprint
+     * @queryParam status string Filter by status enum value. Example: active
+     * @queryParam priority string Filter by priority enum value. Example: high
+     * @queryParam type string Filter by project type enum value. Example: internal
+     * @queryParam created_by integer Filter by creator user id. Example: 5
+     * @queryParam recurring boolean Filter by recurring flag (0 or 1). Example: 1
+     * @queryParam start_date date Include projects starting on or after the provided date. Example: 2025-01-01
+     * @queryParam end_date date Include projects ending on or before the provided date. Example: 2025-12-31
+     * @queryParam sort string Sort column prefixed with "-" for descending. Example: -created_at
+     * @queryParam per_page integer Items per page, defaults to the application's pagination value. Example: 20
+     */
     public function index(ProjectFilterRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
@@ -82,6 +99,25 @@ class ProjectController extends Controller
         return ProjectResource::collection($projects);
     }
 
+    /**
+     * @group Projects
+     * @authenticated
+     *
+     * Create a new project.
+     *
+     * The authenticated user is automatically stored as the creator.
+     *
+     * @bodyParam title string required Project title. Example: Marketing launch
+     * @bodyParam description string Project description text. Example: Coordinate launch tasks
+     * @bodyParam status string Project status enum value. Example: active
+     * @bodyParam priority string Project priority enum value. Example: high
+     * @bodyParam type string Project type enum value. Example: internal
+     * @bodyParam start_date date Project start date. Example: 2025-03-15
+     * @bodyParam end_date date Project end date. Example: 2025-07-30
+     * @bodyParam recurring boolean Whether the project repeats. Example: false
+     * @bodyParam budget number Project budget in the application's currency. Example: 15000.50
+     * @bodyParam attachments array Attachment identifiers. Example: ["file_1","file_2"]
+     */
     public function store(StoreProjectRequest $request)
     {
         try {
@@ -102,6 +138,25 @@ class ProjectController extends Controller
         }
     }
 
+    /**
+     * @group Projects
+     * @authenticated
+     *
+     * Update an existing project.
+     *
+     * The authenticated user remains the creator; sending `created_by` is ignored.
+     *
+     * @bodyParam title string Project title. Example: Marketing launch
+     * @bodyParam description string Project description text. Example: Coordinate launch tasks
+     * @bodyParam status string Project status enum value. Example: on_hold
+     * @bodyParam priority string Project priority enum value. Example: medium
+     * @bodyParam type string Project type enum value. Example: client
+     * @bodyParam start_date date Project start date. Example: 2025-03-15
+     * @bodyParam end_date date Project end date. Example: 2025-07-30
+     * @bodyParam recurring boolean Whether the project repeats. Example: false
+     * @bodyParam budget number Project budget in the application's currency. Example: 15000.50
+     * @bodyParam attachments array Attachment identifiers. Example: ["file_1","file_2"]
+     */
     public function update(Project $project, UpdateProjectRequest $request)
     {
         try {
@@ -123,6 +178,12 @@ class ProjectController extends Controller
         }
     }
 
+    /**
+     * @group Projects
+     * @authenticated
+     *
+     * Delete a project permanently.
+     */
     public function destroy(Project $project)
     {
         try {
