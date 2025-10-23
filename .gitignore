@@ -10,7 +10,7 @@ src/public/editoruploads
 src/public/storage
 src/storage/*.key
 src/storage/certs
-src/composer.lock
+#src/composer.lock
 src/vendor
 src/.env
 src/.env.backup
@@ -44,7 +44,7 @@ src/public/coockies/Cookie.txt
 .idea/commandlinetools/schemas/frameworkDescriptionVersion1.1.4.xsd
 .idea/commandlinetools/Laravel_5_17_21__9_45_AM.xml
 .idea/runConfigurations
-src/bootstrap/cache/
+src/bootstrap/cache/*
 data/*
 src-old
 .vscode/*
